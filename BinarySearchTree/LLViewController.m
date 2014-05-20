@@ -7,6 +7,7 @@
 //
 
 #import "LLViewController.h"
+#import "LLBinarySearchTree.h"
 
 @interface LLViewController ()
 
@@ -17,7 +18,21 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view, typically from a nib.
+    
+    LLBinarySearchTree *binaryTree = [LLBinarySearchTree new];
+    
+    for (int i  = 0; i < 100; i++) {
+        [binaryTree addValue:arc4random() % 100];
+    }
+    
+    [binaryTree printTree];
+    if ([binaryTree findNodeForValue:50]) {
+        NSLog(@"50 deleted");
+        [binaryTree deleteValue:50];
+    }
+    [binaryTree printTree];
+
+    
 }
 
 - (void)didReceiveMemoryWarning
