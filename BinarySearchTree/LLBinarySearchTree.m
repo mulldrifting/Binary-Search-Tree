@@ -19,20 +19,9 @@
 - (void)addValue:(NSInteger)value
 {
     LLNode *newNode = [LLNode nodeWithValue:value];
-    LLNode *parentNode;
     
     if (self.root) {
-        parentNode = [self findParentNodeForNewValue:value onNode:self.root];
-        
-        if (parentNode) {
-            if (value < parentNode.value) {
-                parentNode.leftChild = newNode;
-            }
-            else if (value > parentNode.value)
-            {
-                parentNode.rightChild = newNode;
-            }
-        }
+        [self.root addNode:newNode];
     }
     else {
         self.root = newNode;
@@ -113,23 +102,19 @@
     return nil;
 }
 
-- (LLNode *)findParentOfMaxNodeWithNode:(LLNode *)node
+- (LLNode *)findMaxNode:(LLNode *)node
 {
-    LLNode *childNode = node.rightChild;
-    while (childNode.rightChild) {
-        node = childNode;
-        childNode = childNode.rightChild;
+    while (node.rightChild) {
+        node = node.rightChild;
     }
     return node;
 }
 
 - (void)deleteValue:(NSInteger)value
 {
-    LLNode *targetParentNode = [self findParentNodeForValue:value onNode:self.root];
     LLNode *targetNode = [self findNodeForValue:value];
     
-    LLNode *nextNode;
-    LLNode *parentNode;
+    LLNode *replacementNode;
     
     // If target node exists
     if (targetNode) {
@@ -137,38 +122,48 @@
         // If target node has a left child
         if (targetNode.leftChild) {
             
-            NSLog(@"target node left child: %d", targetNode.leftChild.value);
-            
             // continue until finding rightmost child in the tree starting from target node's left child
-            parentNode = [self findParentOfMaxNodeWithNode:targetNode.leftChild];
+            replacementNode = [self findMaxNode:targetNode];
+            // replace target node's value with the replacement
+            targetNode.value = replacementNode.value;
             
-            if (targetNode.rightChild) {
-                NSLog(@"parent node of max node %d  child %d", parentNode.value, parentNode.rightChild.value);
+            // if the replacement node is at least two nodes away
+            if (targetNode.leftChild.rightChild) {
+                replacementNode.parent.rightChild = replacementNode.leftChild;
+                replacementNode.leftChild.parent = replacementNode.parent;
             }
-            
-            if (parentNode.rightChild) {
-                nextNode = parentNode.rightChild;
-                targetNode.value = nextNode.value;
-                parentNode.rightChild = nextNode.leftChild;
-            }
+            // if the replacement node is the left child
             else {
-                targetParentNode.leftChild = targetNode.leftChild;
+                targetNode.leftChild = replacementNode.leftChild;
+                replacementNode.leftChild.parent = targetNode;
             }
         }
+        
+        // If the target node only has a right child
         else if (targetNode.rightChild) {
-            if (value < targetParentNode.value) {
-                targetParentNode.leftChild = targetNode.rightChild;
+            
+            // If the target node is to the left of its parent node
+            // set the parent's left child to the target's right child
+            if (value < targetNode.parent.value) {
+                targetNode.parent.leftChild = targetNode.rightChild;
             }
-            else if (value > targetParentNode.value) {
-                targetParentNode.rightChild = targetParentNode.rightChild;
+            // If the target node is to the right of its parent node
+            // set the parent's right child to the target's right child
+            else if (value > targetNode.parent.value) {
+                targetNode.parent.rightChild = targetNode.rightChild;
             }
+            
+            // set the right child node's parent to the target node's parent
+            targetNode.rightChild.parent = targetNode.parent;
         }
+        
+        // If the target has no children
         else {
-            if (targetNode.value < parentNode.value) {
-                targetParentNode.leftChild = nil;
+            if (targetNode.value < targetNode.parent.value) {
+                targetNode.parent.leftChild = nil;
             }
             else {
-                targetParentNode.rightChild = nil;
+                targetNode.parent.rightChild = nil;
             }
             
         }

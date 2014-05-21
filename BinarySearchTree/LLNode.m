@@ -25,6 +25,7 @@
         }
         else {
             self.leftChild = node;
+            node.parent = self;
         }
     }
     else if (node.value > self.value) {
@@ -33,6 +34,7 @@
         }
         else {
             self.rightChild = node;
+            node.parent = self;
         }
     }
     else {

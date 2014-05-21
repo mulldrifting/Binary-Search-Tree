@@ -13,6 +13,7 @@
 @property (nonatomic) NSInteger value;
 @property (strong, nonatomic) LLNode *leftChild;
 @property (strong, nonatomic) LLNode *rightChild;
+@property (weak, nonatomic) LLNode *parent;
 
 + (id)nodeWithValue:(NSInteger)value;
 - (void)addNode:(LLNode *)node;
